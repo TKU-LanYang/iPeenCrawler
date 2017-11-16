@@ -25,6 +25,7 @@ def banner():
 
 def main():
     banner()
+    database.create_tables()
     # target_url = input("Input a crawling target URL (eg.\"http://www.ipeen.com.tw/search/ilan/000/1-0-0-0/\"):")
     grab_count = input("How many page should grab ? (or \'0\' for all) ")
 

@@ -10,7 +10,7 @@ Base = declarative_base()
 class RestaurantIlan(Base):
     __tablename__ = 'restaurant_ilan'
     id = Column(Integer, primary_key=True)
-    shopName = Column(String(20))
+    shopName = Column(Text)
     shopId = Column(Integer)
     shopUrl = Column(String(100))
     shopStatus = Column(String(10))
