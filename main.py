@@ -1,7 +1,6 @@
-import requests
-from bs4 import BeautifulSoup
-import ipeenDetail
+import ipeendetail
 import time
+import database
 
 DEV_URL = 'http://www.ipeen.com.tw/search/ilan/000/1-0-0-0/'
 PARSER = 'html.parser'
@@ -26,11 +25,11 @@ def banner():
 
 def main():
     banner()
-    target_url = input("Input a crawling target URL (eg.\"http://www.ipeen.com.tw/search/ilan/000/1-0-0-0/\"):")
+    # target_url = input("Input a crawling target URL (eg.\"http://www.ipeen.com.tw/search/ilan/000/1-0-0-0/\"):")
     grab_count = input("How many page should grab ? (or \'0\' for all) ")
 
-    ipeenDetail.page_grab(DEV_URL, int(grab_count))
-
+    data = ipeendetail.page_grab(DEV_URL, int(grab_count))
+    database.store_shop_data(data)
 
 if __name__ == '__main__':
     main()
