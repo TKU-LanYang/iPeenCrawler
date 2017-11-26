@@ -30,7 +30,9 @@ def main():
     grab_count = input("How many page should grab ? (or \'0\' for all) ")
 
     data = ipeendetail.page_grab(DEV_URL, int(grab_count))
+    print('>>Store shop data')
     database.store_shop_data(data)
+    print('>>Grab shop Detail')
 
 if __name__ == '__main__':
     main()

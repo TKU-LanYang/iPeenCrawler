@@ -3,7 +3,20 @@ from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('mysql+pymysql://root:root@localhost/iPeen?charset=utf8mb4', echo=True)
+USER = 'root'
+PASSWORD = 'root'
+HOST = 'localhost'
+CHARSET = 'utf8mb4'
+DATABASE = 'iPeen'
+
+init_sql = create_engine('mysql+pymysql://{0}:{1}@{2}'.format(USER, PASSWORD, HOST), echo=True)
+
+init_sql.execute('CREATE DATABASE IF NOT EXISTS {0} CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;'.format(DATABASE))
+
+engine = create_engine(
+    'mysql+pymysql://{0}:{1}@{2}/{3}?charset={4}'.format(USER, PASSWORD, HOST, DATABASE, CHARSET), echo=True
+)
+
 Base = declarative_base()
 
 
@@ -95,7 +108,7 @@ def store_review_data(data_list):
 
 
 if __name__ == '__main__':
-    pass
+    # pass
     # fake = {'shop_id': 84984, 'review_detail': [
     #     {'review_id': '1503206', 'review_reply_count': '4', 'review_thumbs_up': '14', 'review_watch': '602',
     #      'review_author': '焦糖曼曼',
