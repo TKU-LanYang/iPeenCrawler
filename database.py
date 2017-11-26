@@ -108,6 +108,7 @@ def store_review_data(data_list):
 
 
 if __name__ == '__main__':
+    pass
     # pass
     # fake = {'shop_id': 84984, 'review_detail': [
     #     {'review_id': '1503206', 'review_reply_count': '4', 'review_thumbs_up': '14', 'review_watch': '602',
