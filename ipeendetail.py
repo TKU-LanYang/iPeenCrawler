@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import time
+import datetime
 
 TEST_URL = 'http://www.ipeen.com.tw/shop/40797'
 BASE_URL = 'http://www.ipeen.com.tw'
@@ -99,37 +100,47 @@ def extract_int(string):
                 return s
 
 
+def extract_date(string):
+    dtime = datetime.datetime.strptime(str(string), "%Y-%m-%dT%H:%M:%SZ").strftime('%Y-%m-%d %H:%M:%S')
+    return dtime
+
+
 def get_shop_detail(shop_id):
     result = {}
     shop_url = BASE_URL + '/shop/' + str(shop_id)
     list_request = requests.get(shop_url)
     if list_request.status_code == requests.codes.ok:
-        soup = BeautifulSoup(list_request.content, PARSER)
+        try:
+            soup = BeautifulSoup(list_request.content, PARSER)
 
-        info_section = soup.find('div', class_='info')  # get page info section first
+            info_section = soup.find('div', class_='info')  # get page info section first
+            result['shop_id'] = int(shop_id)
+            # result['shop_name'] = info_section.find('span', attrs={"itemprop": "name"}).text
+            result['shop_category'] = info_section.find('a', attrs={"data-action": "up_small_classify"}).text
+            result['shop_consumption'] = extract_int(info_section.find('p', class_="cost i"))
+            try:
+                result['shop_telephone'] = info_section.find('a', attrs={"data-action": "up_phone"}).text
+            except:
+                result['shop_telephone'] = 'None'
+            result['shop_address'] = info_section.find('a', attrs={"data-action": "up_address"}).text.strip()
+            result['shop_rate'] = info_section.find('span', attrs={"itemprop": "ratingValue"}).text
+            result['shop_rate_count'] = info_section.find('em', attrs={"itemprop": "ratingCount"}).text
 
-        result['shop_name'] = info_section.find('span', attrs={"itemprop": "name"}).text
-        result['shop_category'] = info_section.find('a', attrs={"data-action": "up_small_classify"}).text
-        result['shop_consumption'] = extract_int(info_section.find('p', class_="cost i"))
-        result['shop_telephone'] = info_section.find('a', attrs={"data-action": "up_phone"}).text
-        result['shop_address'] = info_section.find('a', attrs={"data-action": "up_address"}).text.strip()
-        result['shop_rate'] = info_section.find('span', attrs={"itemprop": "ratingValue"}).text
-        result['shop_rate_count'] = info_section.find('em', attrs={"itemprop": "ratingCount"}).text
+            scalar_section = info_section.find('div', class_='scalar')  # tricky part
 
-        scalar_section = info_section.find('div', class_='scalar')  # tricky part
+            result['shop_watch_count'] = extract_int(scalar_section.contents[5].text)  # wtf
+            result['shop_bookmark_count'] = extract_int(scalar_section.contents[7].text)  # MAGIC!
 
-        result['shop_watch_count'] = extract_int(scalar_section.contents[5].text)  # wtf
-        result['shop_bookmark_count'] = extract_int(scalar_section.contents[7].text)  # MAGIC!
+            other_rating = soup.find('dl', class_="rating").contents  # new section
 
-        other_rating = soup.find('dl', class_="rating").contents  # new section
+            result['delicious_rate'] = other_rating[3].find('meter')['value']  # ????
+            result['service_rate'] = other_rating[7].find('meter')['value']
+            result['env_rate'] = other_rating[11].find('meter')['value']
 
-        result['delicious_rate'] = other_rating[3].find('meter')['value']  # ????
-        result['service_rate'] = other_rating[7].find('meter')['value']
-        result['env_rate'] = other_rating[11].find('meter')['value']
-
-        print("Fetch shop detail success")
-        return result
-
+            print("Fetch shop detail success")
+            return result
+        except:
+            print('FAIL TO FETCH '+shop_id)
     else:
         print("error:", list_request.status_code)
         return None
@@ -153,7 +164,7 @@ def get_shop_review(shop_id):
             break
         for article in articles:
             review_url = BASE_URL + article.a['href']
-
+            review_datetime = str(article.find('time')['datetime'])
             review_reply_count = extract_int(article.find(attrs={'data-label': "X則回應"}).text)
             review_thumbs_up = extract_int(article.find(attrs={'data-label': "X人好評"}).text)
             review_watch = extract_int(article.find(class_='extended').span.text)
@@ -162,7 +173,8 @@ def get_shop_review(shop_id):
             print(">>Review link:", review_url)
 
             result['shop_id'] = shop_id
-            review = get_review_content(review_url, review_reply_count, review_thumbs_up, review_watch, review_author)
+            review = get_review_content(review_url, review_datetime, review_reply_count, review_thumbs_up, review_watch,
+                                        review_author)
             tmp_list.append(review)
 
             counter += 1
@@ -176,7 +188,7 @@ def get_shop_review(shop_id):
 
 
 # get review content and get reply content calling review_reply_to_list()
-def get_review_content(review_url, review_reply_count, review_thumbs_up, review_watch, review_author):
+def get_review_content(review_url, review_datetime, review_reply_count, review_thumbs_up, review_watch, review_author):
     result = {}
 
     review_id = review_url.split('/')[4]
@@ -188,6 +200,7 @@ def get_review_content(review_url, review_reply_count, review_thumbs_up, review_
     # print(">>start of review")
     # print(descriptions.text)
     result['review_id'] = review_id
+    result['review_datetime'] = extract_date(review_datetime)
     result['review_reply_count'] = review_reply_count
     result['review_thumbs_up'] = review_thumbs_up
     result['review_watch'] = review_watch
@@ -209,17 +222,19 @@ def review_reply_to_list(tag_soup):
             data = {}
             user = reply.find('p', class_='name')
             content = reply.find('div', class_='content')
+            dtime = reply.find('span', class_='date')
             if isinstance(user, type(None)):
-                reply_user = None
+                data['reply_user'] = None
             else:
-                reply_user = user.a.text
+                data['reply_user'] = user.a.text
             if isinstance(content, type(None)):
-                reply_content = None
+                data['reply_content'] = None
             else:
-                reply_content = content.text
-            # print(reply_user + ":", reply_content)
-            data['reply_user'] = reply_user
-            data['reply_content'] = reply_content
+                data['reply_content'] = content.text
+            if isinstance(dtime, type(None)):
+                data['reply_time'] = None
+            else:
+                data['reply_time'] = datetime.datetime.strptime(str(dtime.text), '%Y-%m-%d %H:%M:%S')
             result.append(data)
     return result
 
@@ -247,6 +262,7 @@ def useful_user(shop_id):
 # TODO get further more data in the page !
 
 if __name__ == '__main__':
-    # page_grab(DEV_URL, 0)
-    a = get_shop_review(84984)
-    print(a)
+    pass
+    # a = get_shop_review(84984)
+    # print('stop')
+    # database.store_review_data(a)
