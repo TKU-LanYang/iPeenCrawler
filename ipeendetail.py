@@ -137,10 +137,10 @@ def get_shop_detail(shop_id):
             result['service_rate'] = other_rating[7].find('meter')['value']
             result['env_rate'] = other_rating[11].find('meter')['value']
 
-            print("Fetch shop detail success")
+            print("Fetch shop detail success ", shop_id)
             return result
         except:
-            print('FAIL TO FETCH '+shop_id)
+            print('FAIL TO FETCH ' + shop_id)
     else:
         print("error:", list_request.status_code)
         return None
@@ -152,38 +152,47 @@ def get_shop_review(shop_id):
     tmp_list = []
     page = 1
     counter = 0
-    while True:
-        review_page = BASE_URL + '/shop/' + str(shop_id) + '/comments?p=' + str(page)
-        comment = requests.get(review_page)
-        soup = BeautifulSoup(comment.content, PARSER)
+    try:
+        while True:
+            review_page = BASE_URL + '/shop/' + str(shop_id) + '/comments?p=' + str(page)
+            comment = requests.get(review_page)
+            soup = BeautifulSoup(comment.content, PARSER)
 
-        review_list = soup.find('section', class_="review-list")
+            review_list = soup.find('section', class_="review-list")
 
-        articles = review_list.find_all('article', attrs={'itemprop': "review"})
-        if len(articles) is 0:
-            break
-        for article in articles:
-            review_url = BASE_URL + article.a['href']
-            review_datetime = str(article.find('time')['datetime'])
-            review_reply_count = extract_int(article.find(attrs={'data-label': "X則回應"}).text)
-            review_thumbs_up = extract_int(article.find(attrs={'data-label': "X人好評"}).text)
-            review_watch = extract_int(article.find(class_='extended').span.text)
-            review_author = article.find('span', attrs={'itemprop': "author"}).text
+            articles = review_list.find_all('article', attrs={'itemprop': "review"})
+            if len(articles) is 0:
+                break
+            print(">>Page:", page)
+            for article in articles:
+                review_url = BASE_URL + article.a['href']
+                review_datetime = str(article.find('time')['datetime'])
+                review_reply_count = extract_int(article.find(attrs={'data-label': "X則回應"}).text)
+                try:
+                    review_thumbs_up = extract_int(article.find(attrs={'data-label': "X人好評"}).text)
+                except:
+                    review_thumbs_up = '0'
+                    print('No tag found')
+                review_watch = extract_int(article.find(class_='extended').span.text)
+                review_author = article.find('span', attrs={'itemprop': "author"}).text
 
-            print(">>Review link:", review_url)
+                print(">>Review link:", review_url)
 
-            result['shop_id'] = shop_id
-            review = get_review_content(review_url, review_datetime, review_reply_count, review_thumbs_up, review_watch,
-                                        review_author)
-            tmp_list.append(review)
+                result['shop_id'] = shop_id
+                review = get_review_content(review_url, review_datetime, review_reply_count, review_thumbs_up,
+                                            review_watch,
+                                            review_author)
+                tmp_list.append(review)
 
-            counter += 1
-        result['review_detail'] = tmp_list
-        time.sleep(3)
-        page += 1
-    print(">>total:", counter)
-    print(">>Get review url finish")
-    print(result)
+                counter += 1
+            result['review_detail'] = tmp_list
+            time.sleep(2)
+            page += 1
+        print(">>total:", counter)
+        print(">>Get review url finish")
+        # print(result)
+    except:
+        print('FAIL TO GET SHOP REVIEW ' + shop_id + 'AT PAGE' + str(page))
     return result
 
 
@@ -262,7 +271,7 @@ def useful_user(shop_id):
 # TODO get further more data in the page !
 
 if __name__ == '__main__':
-    pass
+    get_shop_review(33031)
     # a = get_shop_review(84984)
     # print('stop')
     # database.store_review_data(a)

@@ -66,7 +66,7 @@ class fire:
         self.id_list = database.dump_shop_id()
 
     def auto_pilot(self):
-        self.get_pages()
+        # self.get_pages()
         self.shop_data()
         self.shop_detail()
         self.shop_review_reply()

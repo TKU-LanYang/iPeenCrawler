@@ -19,7 +19,7 @@ engine = create_engine(
 
 Base = declarative_base()
 
-
+# TODO change thumbs up 's data type and inspect the data type set
 class RestaurantIlan(Base):
     __tablename__ = 'restaurant_ilan'
     id = Column(Integer, primary_key=True)
