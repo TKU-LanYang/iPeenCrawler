@@ -122,7 +122,10 @@ def get_shop_detail(shop_id):
                 result['shop_telephone'] = info_section.find('a', attrs={"data-action": "up_phone"}).text
             except:
                 result['shop_telephone'] = 'None'
-            result['shop_address'] = info_section.find('a', attrs={"data-action": "up_address"}).text.strip()
+            try:
+                result['shop_address'] = info_section.find('a', attrs={"data-action": "up_address"}).text.strip()
+            except:
+                result['shop_address'] = 'None'
             result['shop_rate'] = info_section.find('span', attrs={"itemprop": "ratingValue"}).text
             result['shop_rate_count'] = info_section.find('em', attrs={"itemprop": "ratingCount"}).text
 
@@ -140,7 +143,7 @@ def get_shop_detail(shop_id):
             print("Fetch shop detail success ", shop_id)
             return result
         except:
-            print('FAIL TO FETCH ' + shop_id)
+            print('FAIL TO FETCH ' + str(shop_id))
     else:
         print("error:", list_request.status_code)
         return None
@@ -192,7 +195,7 @@ def get_shop_review(shop_id):
         print(">>Get review url finish")
         # print(result)
     except:
-        print('FAIL TO GET SHOP REVIEW ' + shop_id + 'AT PAGE' + str(page))
+        print('FAIL TO GET SHOP REVIEW ' + str(shop_id) + 'AT PAGE' + str(page))
     return result
 
 
