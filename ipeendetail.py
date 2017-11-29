@@ -110,40 +110,40 @@ def get_shop_detail(shop_id):
     shop_url = BASE_URL + '/shop/' + str(shop_id)
     list_request = requests.get(shop_url)
     if list_request.status_code == requests.codes.ok:
+        # try:
+        soup = BeautifulSoup(list_request.content, PARSER)
+
+        info_section = soup.find('div', class_='info')  # get page info section first
+        result['shop_id'] = int(shop_id)
+        # result['shop_name'] = info_section.find('span', attrs={"itemprop": "name"}).text
+        result['shop_category'] = info_section.find('a', attrs={"data-action": "up_small_classify"}).text
+        result['shop_consumption'] = extract_int(info_section.find('p', class_="cost i"))
         try:
-            soup = BeautifulSoup(list_request.content, PARSER)
-
-            info_section = soup.find('div', class_='info')  # get page info section first
-            result['shop_id'] = int(shop_id)
-            # result['shop_name'] = info_section.find('span', attrs={"itemprop": "name"}).text
-            result['shop_category'] = info_section.find('a', attrs={"data-action": "up_small_classify"}).text
-            result['shop_consumption'] = extract_int(info_section.find('p', class_="cost i"))
-            try:
-                result['shop_telephone'] = info_section.find('a', attrs={"data-action": "up_phone"}).text
-            except:
-                result['shop_telephone'] = 'None'
-            try:
-                result['shop_address'] = info_section.find('a', attrs={"data-action": "up_address"}).text.strip()
-            except:
-                result['shop_address'] = 'None'
-            result['shop_rate'] = info_section.find('span', attrs={"itemprop": "ratingValue"}).text
-            result['shop_rate_count'] = info_section.find('em', attrs={"itemprop": "ratingCount"}).text
-
-            scalar_section = info_section.find('div', class_='scalar')  # tricky part
-
-            result['shop_watch_count'] = extract_int(scalar_section.contents[5].text)  # wtf
-            result['shop_bookmark_count'] = extract_int(scalar_section.contents[7].text)  # MAGIC!
-
-            other_rating = soup.find('dl', class_="rating").contents  # new section
-
-            result['delicious_rate'] = other_rating[3].find('meter')['value']  # ????
-            result['service_rate'] = other_rating[7].find('meter')['value']
-            result['env_rate'] = other_rating[11].find('meter')['value']
-
-            print("Fetch shop detail success ", shop_id)
-            return result
+            result['shop_telephone'] = info_section.find('a', attrs={"data-action": "up_phone"}).text
         except:
-            print('FAIL TO FETCH ' + str(shop_id))
+            result['shop_telephone'] = 'None'
+        try:
+            result['shop_address'] = info_section.find('a', attrs={"data-action": "up_address"}).text.strip()
+        except:
+            result['shop_address'] = 'None'
+        result['shop_rate'] = info_section.find('span', attrs={"itemprop": "ratingValue"}).text
+        result['shop_rate_count'] = info_section.find('em', attrs={"itemprop": "ratingCount"}).text
+
+        scalar_section = info_section.find('div', class_='scalar')  # tricky part
+
+        result['shop_watch_count'] = extract_int(scalar_section.contents[5].text)  # wtf
+        result['shop_bookmark_count'] = extract_int(scalar_section.contents[7].text)  # MAGIC!
+
+        other_rating = soup.find('dl', class_="rating").contents  # new section
+
+        result['delicious_rate'] = other_rating[3].find('meter')['value']  # ????
+        result['service_rate'] = other_rating[7].find('meter')['value']
+        result['env_rate'] = other_rating[11].find('meter')['value']
+
+        print("Fetch shop detail success ", shop_id)
+        return result
+    # except:
+    # print('FAIL TO FETCH ' + str(shop_id))
     else:
         print("error:", list_request.status_code)
         return None
