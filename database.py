@@ -26,7 +26,7 @@ class RestaurantIlan(Base):
     shopName = Column(Text)
     shopId = Column(Integer)
     shopUrl = Column(String(100))
-    shopStatus = Column(String(10))
+    shopStatus = Column(String(50))
 
     # review = relationship("Review", order_by="Review.id")
 
@@ -52,7 +52,7 @@ class Review(Base):
     reviewReplyCount = Column(Integer)
     reviewDatetime = Column(DateTime)
     reviewThumbsUp = Column(String(100))
-    reviewWatch = Column(String(10))
+    reviewWatch = Column(String(50))
     reviewId = Column(Integer)
     reviewAuthor = Column(String(50))
     reviewContent = Column(Text)
@@ -62,9 +62,9 @@ class ShopDetail(Base):
     __tablename__ = 'shop_detail'
     id = Column(Integer, primary_key=True)
     shopId = Column(Integer)
-    SDCategory = Column(String(10))
+    SDCategory = Column(String(50))
     SDConsumption = Column(Integer)
-    SDTelephone = Column(String(20))
+    SDTelephone = Column(String(50))
     SDAddress = Column(String(100))
     SDRate = Column(Integer)
     SDRateCount = Column(Integer)
