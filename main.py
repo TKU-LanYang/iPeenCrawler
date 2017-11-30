@@ -54,7 +54,10 @@ class fire:
             print('>>LAUNCH SHOP REPLY & REVIEW GETTER<<')
             for id in self.id_list:
                 shop_review = ipeendetail.get_shop_review(id)
-                database.store_review_data(shop_review)
+                if shop_review is None:
+                    print('NO DATA')
+                else:
+                    database.store_review_data(shop_review)
         else:
             print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1

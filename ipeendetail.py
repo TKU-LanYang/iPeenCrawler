@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import datetime
+import database
 
 TEST_URL = 'http://www.ipeen.com.tw/shop/40797'
 BASE_URL = 'http://www.ipeen.com.tw'
@@ -196,6 +197,8 @@ def get_shop_review(shop_id):
         # print(result)
     except:
         print('FAIL TO GET SHOP REVIEW ' + str(shop_id) + 'AT PAGE' + str(page))
+    if len(result) is 0:
+        return None
     return result
 
 
@@ -274,7 +277,12 @@ def useful_user(shop_id):
 # TODO get further more data in the page !
 
 if __name__ == '__main__':
-    get_shop_review(33031)
+    shop_review = get_shop_review(1072766)
+    if shop_review is None:
+        print('NO DATA')
+    else:
+        database.store_review_data(shop_review)
+    # database.store_review_data(shop_review)
     # a = get_shop_review(84984)
     # print('stop')
     # database.store_review_data(a)
