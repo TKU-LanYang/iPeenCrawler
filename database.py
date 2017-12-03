@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import select
 
 USER = 'root'
 PASSWORD = 'root'
@@ -18,6 +19,7 @@ engine = create_engine(
 )
 
 Base = declarative_base()
+
 
 # TODO change thumbs up 's data type and inspect the data type set
 class RestaurantIlan(Base):
@@ -95,6 +97,7 @@ def create_tables():
     session = load_session()
     Base.metadata.create_all(engine)
     session.commit()
+    session.close()
 
 
 def store_shop_data(data_list):
@@ -103,6 +106,7 @@ def store_shop_data(data_list):
         shop = RestaurantIlan(shopName=data['name'], shopId=data['id'], shopUrl=data['url'], shopStatus=data['status'])
         session.add(shop)
     session.commit()
+    session.close()
 
 
 def dump_shop_id():
@@ -112,6 +116,15 @@ def dump_shop_id():
         id_list.append(shop.shopId)
     session.close()
     return id_list
+
+
+def shop_status(id):
+    session = load_session()
+    query = session.query(RestaurantIlan.shopStatus).filter(RestaurantIlan.shopId == id).first()
+    # for query in session.query(RestaurantIlan).filter(RestaurantIlan.shopId == int(id)):
+    #     print(query.shopStatus)
+    session.close()
+    return str(query[0])
 
 
 def store_shop_detail(data_list):
@@ -170,4 +183,4 @@ def store_review_reply(id, data_list):
 
 
 if __name__ == '__main__':
-    dump_shop_id()
+    print(shop_status(42367))

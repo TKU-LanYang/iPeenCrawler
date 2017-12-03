@@ -53,11 +53,14 @@ class fire:
         if len(self.id_list) is not 0:
             print('>>LAUNCH SHOP REPLY & REVIEW GETTER<<')
             for id in self.id_list:
-                shop_review = ipeendetail.get_shop_review(id)
-                if shop_review is None:
-                    print('NO DATA')
+                if database.shop_status(str(id)) == 'Normal':
+                    shop_review = ipeendetail.get_shop_review(id)
+                    if shop_review is None:
+                        print('NO DATA')
+                    else:
+                        database.store_review_data(shop_review)
                 else:
-                    database.store_review_data(shop_review)
+                    print("WTF")
         else:
             print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1

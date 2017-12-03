@@ -190,7 +190,7 @@ def get_shop_review(shop_id):
 
                 counter += 1
             result['review_detail'] = tmp_list
-            time.sleep(2)
+            time.sleep(1)
             page += 1
         print(">>total:", counter)
         print(">>Get review url finish")
@@ -277,7 +277,7 @@ def useful_user(shop_id):
 # TODO get further more data in the page !
 
 if __name__ == '__main__':
-    shop_review = get_shop_review(1072766)
+    shop_review = get_shop_review(73013)
     if shop_review is None:
         print('NO DATA')
     else:
