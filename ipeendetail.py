@@ -114,6 +114,9 @@ def get_shop_detail(shop_id):
         # try:
         soup = BeautifulSoup(list_request.content, PARSER)
 
+        result['latitude'] = soup.find('meta', property="place:location:latitude")['content']
+        result['longitude'] = soup.find('meta', property="place:location:longitude")['content']
+
         info_section = soup.find('div', class_='info')  # get page info section first
         result['shop_id'] = int(shop_id)
         # result['shop_name'] = info_section.find('span', attrs={"itemprop": "name"}).text
@@ -190,7 +193,7 @@ def get_shop_review(shop_id):
 
                 counter += 1
             result['review_detail'] = tmp_list
-            time.sleep(1)
+            time.sleep(2)
             page += 1
         print(">>total:", counter)
         print(">>Get review url finish")
@@ -277,11 +280,13 @@ def useful_user(shop_id):
 # TODO get further more data in the page !
 
 if __name__ == '__main__':
-    shop_review = get_shop_review(73013)
-    if shop_review is None:
-        print('NO DATA')
-    else:
-        database.store_review_data(shop_review)
+    # get_shop_detail(37661)
+    useful_user(37661)
+    # shop_review = get_shop_review(37661)
+    # if shop_review is None:
+    #     print('NO DATA')
+    # else:
+    #     database.store_review_data(shop_review)
     # database.store_review_data(shop_review)
     # a = get_shop_review(84984)
     # print('stop')

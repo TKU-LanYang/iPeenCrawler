@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql import select
+from sqlalchemy.dialects.mysql import DOUBLE
 
 USER = 'root'
 PASSWORD = 'root'
@@ -23,7 +23,7 @@ Base = declarative_base()
 
 # TODO change thumbs up 's data type and inspect the data type set
 class RestaurantIlan(Base):
-    __tablename__ = 'restaurant_ilan'
+    __tablename__ = 'ilan_restaurant'
     id = Column(Integer, primary_key=True)
     shopName = Column(Text)
     shopId = Column(Integer)
@@ -48,7 +48,7 @@ class RestaurantIlan(Base):
 
 
 class Review(Base):
-    __tablename__ = 'shop_review'
+    __tablename__ = 'ilan_shop_review'
     id = Column(Integer, primary_key=True)
     shopId = Column(Integer)
     reviewReplyCount = Column(Integer)
@@ -61,9 +61,11 @@ class Review(Base):
 
 
 class ShopDetail(Base):
-    __tablename__ = 'shop_detail'
+    __tablename__ = 'ilan_shop_detail'
     id = Column(Integer, primary_key=True)
     shopId = Column(Integer)
+    shopLatitude = Column(DOUBLE, nullable=False, default=0)
+    shopLongitude = Column(DOUBLE, nullable=False, default=0)
     SDCategory = Column(String(50))
     SDConsumption = Column(Integer)
     SDTelephone = Column(String(50))
@@ -78,7 +80,16 @@ class ShopDetail(Base):
 
 
 class ReviewReply(Base):
-    __tablename__ = 'review_reply'
+    __tablename__ = 'ilan_review_reply'
+    id = Column(Integer, primary_key=True)
+    reviewId = Column(Integer)
+    replyUser = Column(String(50))
+    replyContent = Column(Text)
+    replyDatetime = Column(DateTime)
+
+
+class UserLike(Base):
+    __tablename__ = 'ilan_user_like'
     id = Column(Integer, primary_key=True)
     reviewId = Column(Integer)
     replyUser = Column(String(50))
@@ -131,6 +142,8 @@ def store_shop_detail(data_list):
     session = load_session()
     shop_detail = ShopDetail(
         shopId=data_list['shop_id'],
+        shopLatitude=data_list['latitude'],
+        shopLongitude=data_list['longitude'],
         SDCategory=data_list['shop_category'],
         SDConsumption=data_list['shop_consumption'],
         SDTelephone=data_list['shop_telephone'],
@@ -183,4 +196,5 @@ def store_review_reply(id, data_list):
 
 
 if __name__ == '__main__':
-    print(shop_status(42367))
+    pass
+    # print(shop_status(42367))
