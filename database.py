@@ -120,7 +120,7 @@ def store_shop_data(data_list):
                               shopId=data['id'],
                               shopUrl=data['url'],
                               shopStatus=data['status'],
-                              isFetched=False
+                              isFetched=0
                               )
         session.add(shop)
     session.commit()
