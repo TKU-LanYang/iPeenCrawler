@@ -1,7 +1,9 @@
+# -*- encoding: utf-8 -*-
 import requests
 from bs4 import BeautifulSoup
 import time
 import datetime
+import hashlib
 import database
 
 TEST_URL = 'http://www.ipeen.com.tw/shop/40797'
@@ -170,6 +172,7 @@ def get_shop_review(shop_id):
             articles = review_list.find_all('article', attrs={'itemprop': "review"})
             if len(articles) is 0:
                 break
+            print(">>Getting reciew : ", shop_id)
             print(">>Page:", page)
             for article in articles:
                 review_url = BASE_URL + article.a['href']
@@ -183,7 +186,7 @@ def get_shop_review(shop_id):
                 review_watch = extract_int(article.find(class_='extended').span.text)
                 review_author = article.find('span', attrs={'itemprop': "author"}).text
 
-                print(">>Review link:", review_url)
+                print(">>Reading review link:", review_url)
 
                 result['shop_id'] = shop_id
                 review = get_review_content(review_url, review_datetime, review_reply_count, review_thumbs_up,
@@ -214,7 +217,7 @@ def get_review_content(review_url, review_datetime, review_reply_count, review_t
     description_page = requests.get(review_url)
     soup = BeautifulSoup(description_page.content, PARSER)
     descriptions = soup.find('div', class_='description')
-    print(">>Reading review")
+    # print(">>Reading review")
     # print(">>start of review")
     # print(descriptions.text)
     result['review_id'] = review_id
@@ -266,22 +269,30 @@ def useful_user(shop_id):
         useful_page = requests.get(query_page)
         soup = BeautifulSoup(useful_page.content, PARSER)
         useful_section = soup.find('div', class_='main_people')
-        peoples = useful_section.find_all('div', class_='list')
-        if len(peoples) is 0:
+        users = useful_section.find_all('div', class_='list')
+        if len(users) is 0:
             print('>>Reached the end')
             break
-        for people in peoples:
-            result.append(people.next.text)
+        for user in users:
+            result.append(user.next.text)
             # print(people.next.text)
         page += 1
     return result
+
+
+# def review_fail_safe():
+#     last_shop =
 
 
 # TODO get further more data in the page !
 
 if __name__ == '__main__':
     # get_shop_detail(37661)
-    useful_user(37661)
+    # a = useful_user(1027634)
+    # print(a)
+    string = '靡靡 屁桃超人✌'
+    a = string.encode('utf-8')
+    print(hashlib.sha1(a).hexdigest())
     # shop_review = get_shop_review(37661)
     # if shop_review is None:
     #     print('NO DATA')

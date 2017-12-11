@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.mysql import DOUBLE
+from sqlalchemy import desc
 
 USER = 'root'
 PASSWORD = 'root'
@@ -129,6 +130,15 @@ def dump_shop_id():
     return id_list
 
 
+def dump_review_shop_id():
+    session = load_session()
+    id_list = []
+    for shop in session.query(Review):
+        id_list.append(shop)
+    session.close()
+    return id_list
+
+
 def shop_status(id):
     session = load_session()
     query = session.query(RestaurantIlan.shopStatus).filter(RestaurantIlan.shopId == id).first()
@@ -164,20 +174,25 @@ def store_shop_detail(data_list):
 
 def store_review_data(data_list):
     session = load_session()
-    shop_id = int(data_list['shop_id'])
-    for haystack in data_list['review_detail']:
-        shop = Review(shopId=shop_id)
-        shop.reviewId = int(haystack['review_id'])
-        shop.reviewDatetime = haystack['review_datetime'],
-        shop.reviewReplyCount = int(haystack['review_reply_count'])
-        shop.reviewThumbsUp = int(haystack['review_thumbs_up'])
-        shop.reviewWatch = int(haystack['review_watch'])
-        shop.reviewAuthor = haystack['review_author']
-        shop.reviewContent = haystack['review_content'].strip()
-        # call function to store reply data
-        store_review_reply(int(haystack['review_id']), haystack['review_reply'])
-        session.add(shop)
-        session.commit()
+    try:
+        shop_id = int(data_list['shop_id'])
+        for haystack in data_list['review_detail']:
+            shop = Review(shopId=shop_id)
+            shop.reviewId = int(haystack['review_id'])
+            shop.reviewDatetime = haystack['review_datetime'],
+            shop.reviewReplyCount = int(haystack['review_reply_count'])
+            shop.reviewThumbsUp = int(haystack['review_thumbs_up'])
+            shop.reviewWatch = int(haystack['review_watch'])
+            shop.reviewAuthor = haystack['review_author']
+            shop.reviewContent = haystack['review_content'].strip()
+            # call function to store reply data
+            store_review_reply(int(haystack['review_id']), haystack['review_reply'])
+            session.add(shop)
+            session.commit()
+    except:
+        print('>>Store review fail')
+        shop_id = int(data_list['shop_id'])
+        review_delete(shop_id)
     session.close()
 
 
@@ -195,6 +210,26 @@ def store_review_reply(id, data_list):
     session.close()
 
 
+def review_last_id():
+    session = load_session()
+    query = session.query(Review.shopId).order_by(Review.id.desc()).first()
+    session.close()
+    return query[0]
+
+
+def review_delete(id):
+    session = load_session()
+    try:
+        print('>>Delete review id ', id)
+        query = session.query(Review).filter(Review.shopId == id).delete()
+        print('>>Affected rows:', query)
+        session.commit()
+    except:
+        print('>>Delete review fail on ', id)
+    session.close()
+
+
 if __name__ == '__main__':
-    pass
+    a = dump_review_shop_id()
+    print(a)
     # print(shop_status(42367))

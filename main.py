@@ -61,6 +61,7 @@ class fire:
                         database.store_review_data(shop_review)
                 else:
                     print("WTF")
+
         else:
             print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1
