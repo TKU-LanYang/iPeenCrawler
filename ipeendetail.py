@@ -53,6 +53,7 @@ def page_is_validated(parsed):
 # Return type:list
 def page_grab(url, grab_count):
     result = []
+    no_duplicate = []
     base_url = url
     page_counter = 0
     print(">>Fetching...")
@@ -92,7 +93,11 @@ def page_grab(url, grab_count):
         # break timer
         if page_counter is grab_count and grab_count is not 0:
             break
-    return result
+
+    for i in result:
+        if i not in no_duplicate:
+            no_duplicate.append(i)
+    return no_duplicate
 
 
 def extract_int(string):
@@ -287,18 +292,4 @@ def useful_user(shop_id):
 # TODO get further more data in the page !
 
 if __name__ == '__main__':
-    # get_shop_detail(37661)
-    # a = useful_user(1027634)
-    # print(a)
-    string = '靡靡 屁桃超人✌'
-    a = string.encode('utf-8')
-    print(hashlib.sha1(a).hexdigest())
-    # shop_review = get_shop_review(37661)
-    # if shop_review is None:
-    #     print('NO DATA')
-    # else:
-    #     database.store_review_data(shop_review)
-    # database.store_review_data(shop_review)
-    # a = get_shop_review(84984)
-    # print('stop')
-    # database.store_review_data(a)
+    pass
