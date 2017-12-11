@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Text, DateTime
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.mysql import DOUBLE
@@ -30,22 +30,23 @@ class RestaurantIlan(Base):
     shopId = Column(Integer)
     shopUrl = Column(String(100))
     shopStatus = Column(String(50))
+    isFetched = Column(Boolean)
 
     # review = relationship("Review", order_by="Review.id")
 
-    def __init__(self, shopName, shopId, shopUrl, shopStatus):
-        self.shopName = shopName
-        self.shopId = shopId
-        self.shopUrl = shopUrl
-        self.shopStatus = shopStatus
-
-    def __repr__(self):
-        return "RestaurantIlan('{}','{}', '{}','{}')".format(
-            self.shopName,
-            self.shopId,
-            self.shopUrl,
-            self.shopStatus
-        )
+    # def __init__(self, shopName, shopId, shopUrl, shopStatus):
+    #     self.shopName = shopName
+    #     self.shopId = shopId
+    #     self.shopUrl = shopUrl
+    #     self.shopStatus = shopStatus
+    #
+    # def __repr__(self):
+    #     return "RestaurantIlan('{}','{}', '{}','{}')".format(
+    #         self.shopName,
+    #         self.shopId,
+    #         self.shopUrl,
+    #         self.shopStatus
+    #     )
 
 
 class Review(Base):
@@ -115,7 +116,12 @@ def create_tables():
 def store_shop_data(data_list):
     session = load_session()
     for data in data_list:
-        shop = RestaurantIlan(shopName=data['name'], shopId=data['id'], shopUrl=data['url'], shopStatus=data['status'])
+        shop = RestaurantIlan(shopName=data['name'],
+                              shopId=data['id'],
+                              shopUrl=data['url'],
+                              shopStatus=data['status'],
+                              isFetched=False
+                              )
         session.add(shop)
     session.commit()
     session.close()
