@@ -52,16 +52,21 @@ class fire:
         self.load_id()
         if len(self.id_list) is not 0:
             print('>>LAUNCH SHOP REPLY & REVIEW GETTER<<')
-            for id in self.id_list:
-                if database.shop_status(str(id)) == 'Normal':
-                    shop_review = ipeendetail.get_shop_review(id)
-                    if shop_review is None:
-                        print('NO DATA')
-                    else:
-                        database.store_review_data(shop_review)
-                else:
-                    print("WTF")
 
+            for id in self.id_list:
+                if not database.check_isFetch(id):
+                    if database.shop_status(str(id)) == 'Normal':
+                        shop_review = ipeendetail.get_shop_review(id)
+                        if shop_review is None:
+                            print('NO DATA')
+                            database.shop_trigger_isFetch(id)
+                        else:
+                            database.store_review_data(shop_review)
+                            database.shop_trigger_isFetch(id)
+                    else:
+                        print("WTF")
+                else:
+                    print('>>Skip ',id)
         else:
             print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1

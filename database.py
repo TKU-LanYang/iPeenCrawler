@@ -1,9 +1,10 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.mysql import DOUBLE
-from sqlalchemy import desc
+
+# from sqlalchemy import desc
 
 USER = 'root'
 PASSWORD = 'root'
@@ -19,6 +20,7 @@ engine = create_engine(
     'mysql+pymysql://{0}:{1}@{2}/{3}?charset={4}'.format(USER, PASSWORD, HOST, DATABASE, CHARSET), echo=False
 )
 
+metadata = MetaData()
 Base = declarative_base()
 
 
@@ -101,14 +103,14 @@ class UserLike(Base):
 
 def load_session():
     # metadata = Base.metadata
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    _session = sessionmaker(bind=engine)
+    session = _session()
     return session
 
 
 def create_tables():
     session = load_session()
-    Base.metadata.create_all(engine)
+    metadata.create_all(engine)
     session.commit()
     session.close()
 
@@ -145,9 +147,9 @@ def dump_review_shop_id():
     return id_list
 
 
-def shop_status(id):
+def shop_status(shop_id):
     session = load_session()
-    query = session.query(RestaurantIlan.shopStatus).filter(RestaurantIlan.shopId == id).first()
+    query = session.query(RestaurantIlan.shopStatus).filter(RestaurantIlan.shopId == shop_id).first()
     # for query in session.query(RestaurantIlan).filter(RestaurantIlan.shopId == int(id)):
     #     print(query.shopStatus)
     session.close()
@@ -198,15 +200,15 @@ def store_review_data(data_list):
     except:
         print('>>Store review fail')
         shop_id = int(data_list['shop_id'])
-        review_delete(shop_id)
+        # review_delete(shop_id)
     session.close()
 
 
-def store_review_reply(id, data_list):
+def store_review_reply(shop_id, data_list):
     session = load_session()
     for data in data_list:
         reply = ReviewReply(
-            reviewId=id,
+            reviewId=shop_id,
             replyUser=data['reply_user'],
             replyContent=data['reply_content'],
             replyDatetime=data['reply_time']
@@ -216,26 +218,57 @@ def store_review_reply(id, data_list):
     session.close()
 
 
-def review_last_id():
+def shop_trigger_is_fetch(shop_id):
     session = load_session()
-    query = session.query(Review.shopId).order_by(Review.id.desc()).first()
+    query = session.query(RestaurantIlan).filter(RestaurantIlan.shopId == shop_id).first()
+    query.update({'isFetched': 1})
+    session.commit()
     session.close()
-    return query[0]
 
 
-def review_delete(id):
+def shop_is_fetch_reset(shop_id):
+    session = load_session()
+    query = session.query(RestaurantIlan).filter(RestaurantIlan.shopId == shop_id)
+    query.update({'isFetched': 0})
+    session.commit()
+    session.close()
+
+
+def check_is_fetch(shop_id):
+    session = load_session()
+    query = session.query(RestaurantIlan.isFetched).filter(RestaurantIlan.shopId == shop_id).first()
+    # a = query.filter_by(RestaurantIlan.shopStatus).first()
+    # a = query.shopId
+    # print(query[0])
+    session.close()
+    return bool(query[0])
+
+
+# def review_last_id():
+#     session = load_session()
+#     query = session.query(Review.shopId).order_by(Review.id.desc()).first()
+#     session.close()
+#     return query[0]
+
+
+def cleanup(shop_id):
     session = load_session()
     try:
-        print('>>Delete review id ', id)
-        query = session.query(Review).filter(Review.shopId == id).delete()
+        print('>>Delete review id ', shop_id)
+        query = session.query(Review).filter(Review.shopId == shop_id).delete()
         print('>>Affected rows:', query)
         session.commit()
     except:
-        print('>>Delete review fail on ', id)
+        print('>>Delete review fail on ', shop_id)
     session.close()
 
 
+def tool_check_isFetch():
+    session = load_session()
+    query = session.query()
+
+
 if __name__ == '__main__':
-    a = dump_review_shop_id()
-    print(a)
+    pass
+    # check_isFetch(1028564)
     # print(shop_status(42367))
