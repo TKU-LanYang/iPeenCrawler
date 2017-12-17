@@ -32,7 +32,7 @@ class RestaurantIlan(Base):
     shopId = Column(Integer)
     shopUrl = Column(String(100))
     shopStatus = Column(String(50))
-    isFetched = Column(Boolean)
+    isFetched = Column(Boolean, default=False)
 
     # review = relationship("Review", order_by="Review.id")
 
@@ -122,7 +122,7 @@ def store_shop_data(data_list):
                               shopId=data['id'],
                               shopUrl=data['url'],
                               shopStatus=data['status'],
-                              isFetched=0
+                              isFetched=False
                               )
         session.add(shop)
     session.commit()
@@ -199,7 +199,7 @@ def store_review_data(data_list):
             session.commit()
     except:
         print('>>Store review fail')
-        shop_id = int(data_list['shop_id'])
+        # shop_id = int(data_list['shop_id'])
         # review_delete(shop_id)
     session.close()
 
@@ -220,7 +220,7 @@ def store_review_reply(shop_id, data_list):
 
 def shop_trigger_is_fetch(shop_id):
     session = load_session()
-    query = session.query(RestaurantIlan).filter(RestaurantIlan.shopId == shop_id).first()
+    query = session.query(RestaurantIlan).filter(RestaurantIlan.shopId == shop_id)
     query.update({'isFetched': 1})
     session.commit()
     session.close()
@@ -263,12 +263,12 @@ def cleanup(shop_id):
     session.close()
 
 
-def tool_check_isFetch():
-    session = load_session()
-    query = session.query()
+# def tool_check_is_fetch():
+#     session = load_session()
+#     query = session.query(Review).filter()
 
 
 if __name__ == '__main__':
     pass
-    # check_isFetch(1028564)
+    # shop_trigger_is_fetch(1028564)
     # print(shop_status(42367))

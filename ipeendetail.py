@@ -177,7 +177,7 @@ def get_shop_review(shop_id):
             articles = review_list.find_all('article', attrs={'itemprop': "review"})
             if len(articles) is 0:
                 break
-            print(">>Getting reciew : ", shop_id)
+            print(">>Getting review : ", shop_id)
             print(">>Page:", page)
             for article in articles:
                 review_url = BASE_URL + article.a['href']
@@ -208,7 +208,7 @@ def get_shop_review(shop_id):
         # print(result)
     except:
         print('FAIL TO GET SHOP REVIEW ' + str(shop_id) + 'AT PAGE' + str(page))
-        database.shop_isFetch_reset(shop_id)
+        database.shop_is_fetch_reset(shop_id)
         database.cleanup(shop_id)
     if len(result) is 0:
         return None
