@@ -23,7 +23,7 @@ def banner():
     time.sleep(0.25)
 
 
-class fire:
+class Fire:
     def __init__(self):
         self.id_list = []
         self.grab_count = 1
@@ -50,20 +50,29 @@ class fire:
     def shop_review_reply(self):
         print('>>LOAD IDS')
         self.load_id()
+        i = 0
         if len(self.id_list) is not 0:
             print('>>LAUNCH SHOP REPLY & REVIEW GETTER<<')
-            for id in self.id_list:
-                if database.shop_status(str(id)) == 'Normal':
-                    shop_review = ipeendetail.get_shop_review(id)
-                    if shop_review is None:
-                        print('NO DATA')
-                    else:
-                        database.store_review_data(shop_review)
-                else:
-                    print("WTF")
+            for id_chunks in self.chunks(self.id_list, 10):
 
-        else:
-            print('ERR : NO ID DATA ! CHECK DATABASE')
+                i = i + 1
+                print('>>Chunk', i)
+                for id in id_chunks:
+                    if not database.check_is_fetch(id):
+                        if database.shop_status(str(id)) == 'Normal':
+                            shop_review = ipeendetail.get_shop_review(id)
+                            if shop_review is None:
+                                print('NO DATA')
+                                database.shop_trigger_is_fetch(id)
+                            else:
+                                database.store_review_data(shop_review)
+                                database.shop_trigger_is_fetch(id)
+                        else:
+                            print("WTF")
+                    else:
+                        print('>>Skip ', id)
+                else:
+                    print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1
 
     def get_pages(self):
@@ -78,6 +87,11 @@ class fire:
         self.shop_detail()
         self.shop_review_reply()
 
+    # Create a function called "chunks" with two arguments, l and n:
+    def chunks(self, l, n):
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
+
 
 def main():
     database.create_tables()
@@ -91,7 +105,7 @@ def main():
     print('CAUTION : YOU MUST HAVE SHOP DATA FIRST ! ')
     option = input('OPTION : ')
     # target_url = input("Input a crawling target URL (eg.\"http://www.ipeen.com.tw/search/ilan/000/1-0-0-0/\"):")
-    launch = fire()
+    launch = Fire()
     if option is '1':
         launch.auto_pilot()
     elif option is '2':
