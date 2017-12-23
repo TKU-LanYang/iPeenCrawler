@@ -54,7 +54,6 @@ class Fire:
         if len(self.id_list) is not 0:
             print('>>LAUNCH SHOP REPLY & REVIEW GETTER<<')
             for id_chunks in self.chunks(self.id_list, 10):
-
                 i = i + 1
                 print('>>Chunk', i)
                 for id in id_chunks:
@@ -68,11 +67,11 @@ class Fire:
                                 database.store_review_data(shop_review)
                                 database.shop_trigger_is_fetch(id)
                         else:
-                            print("WTF")
+                            print("Status Not Normal")
                     else:
                         print('>>Skip ', id)
-                else:
-                    print('ERR : NO ID DATA ! CHECK DATABASE')
+        else:
+            print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1
 
     def get_pages(self):
