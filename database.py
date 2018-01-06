@@ -62,6 +62,7 @@ class Review(Base):
     reviewId = Column(Integer)
     reviewAuthor = Column(String(50))
     reviewContent = Column(Text)
+    reviewRate = Column(Integer)
 
 
 class ShopDetail(Base):
@@ -244,6 +245,33 @@ def check_is_fetch(shop_id):
     return bool(query[0])
 
 
+def check_shop_id_is_fetch(shop_id):
+    session = load_session()
+    query = session.query(ShopDetail).filter(ShopDetail.shopId == shop_id).first()
+    session.close()
+    if query is None:
+        return False
+    else:
+        return True
+
+
+def dump_comment_ids():
+    session = load_session()
+    id_list = []
+    for shop in session.query(Review.reviewId):
+        id_list.append(shop[0])
+    session.close()
+    return id_list
+
+
+def patch_update_review_rate(id,rate):
+    session = load_session()
+    query = session.query(Review).filter(Review.reviewId == id)
+    query.update({'reviewRate': rate})
+    session.commit()
+    session.close()
+
+
 # def review_last_id():
 #     session = load_session()
 #     query = session.query(Review.shopId).order_by(Review.id.desc()).first()
@@ -269,6 +297,9 @@ def cleanup(shop_id):
 
 
 if __name__ == '__main__':
-    pass
+    # pass
     # shop_trigger_is_fetch(1028564)
     # print(shop_status(42367))
+    # a = dump_comment_ids()
+    # print(a)
+    pass

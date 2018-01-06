@@ -120,10 +120,12 @@ def get_shop_detail(shop_id):
     if list_request.status_code == requests.codes.ok:
         # try:
         soup = BeautifulSoup(list_request.content, PARSER)
-
-        result['latitude'] = soup.find('meta', property="place:location:latitude")['content']
-        result['longitude'] = soup.find('meta', property="place:location:longitude")['content']
-
+        try:
+            result['latitude'] = soup.find('meta', property="place:location:latitude")['content']
+            result['longitude'] = soup.find('meta', property="place:location:longitude")['content']
+        except:
+            result['latitude'] = 0
+            result['longitude'] = 0
         info_section = soup.find('div', class_='info')  # get page info section first
         result['shop_id'] = int(shop_id)
         # result['shop_name'] = info_section.find('span', attrs={"itemprop": "name"}).text
@@ -286,6 +288,19 @@ def useful_user(shop_id):
         page += 1
     return result
 
+
+def patch_get_review_rate(review_id):
+    try:
+        print('>>PATCH Read Review id : ', review_id)
+        query_page = BASE_URL + '/comment/' + str(review_id)
+        raw_html = requests.get(query_page)
+        soup = BeautifulSoup(raw_html.content, PARSER)
+        review_rate = soup.find('meter')['value']
+        time.sleep(1.5)
+        return int(review_rate)
+    except:
+        print('>>No Review Rate !')
+        return 0
 
 # def review_fail_safe():
 #     last_shop =

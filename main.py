@@ -41,8 +41,14 @@ class Fire:
         if len(self.id_list) is not 0:
             print('>>LAUNCH SHOP DETAIL GETTER')
             for id in self.id_list:
-                shop_detail = ipeendetail.get_shop_detail(id)
-                database.store_shop_detail(shop_detail)
+                if database.check_shop_id_is_fetch(id):
+                    print('Skip Shop')
+                else:
+                    try:
+                        shop_detail = ipeendetail.get_shop_detail(id)
+                        database.store_shop_detail(shop_detail)
+                    except:
+                        print('Check out id: ', id)
         else:
             print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1
@@ -74,6 +80,15 @@ class Fire:
             print('ERR : NO ID DATA ! CHECK DATABASE')
             return -1
 
+    def shop_review_rate(self):
+        print('>>LOAD Comment IDS')
+        c_id = database.dump_comment_ids()
+        for id in c_id:
+            rate = ipeendetail.patch_get_review_rate(id)
+            database.patch_update_review_rate(id,rate)
+            print('OK')
+        #self.load_id()
+
     def get_pages(self):
         self.grab_count = input("How many page should grab ? (or \'0\' for all) ")
 
@@ -101,6 +116,8 @@ def main():
     print('2. STORE SHOP ONLY')
     print('3. STORE SHOP DETAIL ONLY')
     print('4. STORE REVIEWS & REPLIES ONLY')
+    print('          ~ PATCHES ~          ')
+    print('5. STORE SHOP REVIEW RATE')
     print('CAUTION : YOU MUST HAVE SHOP DATA FIRST ! ')
     option = input('OPTION : ')
     # target_url = input("Input a crawling target URL (eg.\"http://www.ipeen.com.tw/search/ilan/000/1-0-0-0/\"):")
@@ -113,6 +130,8 @@ def main():
         launch.shop_detail()
     elif option is '4':
         launch.shop_review_reply()
+    elif option is '5':
+        launch.shop_review_rate()
     else:
         return -1
 
