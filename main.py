@@ -84,10 +84,13 @@ class Fire:
         print('>>LOAD Comment IDS')
         c_id = database.dump_comment_ids()
         for id in c_id:
-            rate = ipeendetail.patch_get_review_rate(id)
-            database.patch_update_review_rate(id,rate)
-            print('OK')
-        #self.load_id()
+            if not database.patch_check_review_has_fetch(id):
+                rate = ipeendetail.patch_get_review_rate(id)
+                database.patch_update_review_rate(id, rate)
+                print('OK')
+            else:
+                print('Skip ', id)
+        # self.load_id()
 
     def get_pages(self):
         self.grab_count = input("How many page should grab ? (or \'0\' for all) ")

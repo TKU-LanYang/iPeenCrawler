@@ -302,6 +302,7 @@ def patch_get_review_rate(review_id):
         print('>>No Review Rate !')
         return 0
 
+
 # def review_fail_safe():
 #     last_shop =
 

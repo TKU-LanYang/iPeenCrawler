@@ -264,12 +264,23 @@ def dump_comment_ids():
     return id_list
 
 
-def patch_update_review_rate(id,rate):
+def patch_update_review_rate(id, rate):
     session = load_session()
     query = session.query(Review).filter(Review.reviewId == id)
     query.update({'reviewRate': rate})
     session.commit()
     session.close()
+
+
+def patch_check_review_has_fetch(id):
+    session = load_session()
+    query = session.query(Review.reviewRate).filter(Review.reviewId == id).first()
+    # print(query)
+    session.close()
+    if query[0] is not 0:
+        return True
+    else:
+        return False
 
 
 # def review_last_id():
@@ -301,5 +312,5 @@ if __name__ == '__main__':
     # shop_trigger_is_fetch(1028564)
     # print(shop_status(42367))
     # a = dump_comment_ids()
-    # print(a)
     pass
+    # print(patch_check_review_has_fetch(1366907))
