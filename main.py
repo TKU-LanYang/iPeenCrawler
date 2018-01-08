@@ -121,6 +121,8 @@ def main():
     print('4. STORE REVIEWS & REPLIES ONLY')
     print('          ~ PATCHES ~          ')
     print('5. STORE SHOP REVIEW RATE')
+    print('          ~ DEMO ~          ')
+    print('6. DEMO MODE')
     print('CAUTION : YOU MUST HAVE SHOP DATA FIRST ! ')
     option = input('OPTION : ')
     # target_url = input("Input a crawling target URL (eg.\"http://www.ipeen.com.tw/search/ilan/000/1-0-0-0/\"):")
