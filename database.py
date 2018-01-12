@@ -34,22 +34,6 @@ class RestaurantIlan(Base):
     shopStatus = Column(String(50))
     isFetched = Column(Boolean, default=False)
 
-    # review = relationship("Review", order_by="Review.id")
-
-    # def __init__(self, shopName, shopId, shopUrl, shopStatus):
-    #     self.shopName = shopName
-    #     self.shopId = shopId
-    #     self.shopUrl = shopUrl
-    #     self.shopStatus = shopStatus
-    #
-    # def __repr__(self):
-    #     return "RestaurantIlan('{}','{}', '{}','{}')".format(
-    #         self.shopName,
-    #         self.shopId,
-    #         self.shopUrl,
-    #         self.shopStatus
-    #     )
-
 
 class Review(Base):
     __tablename__ = 'ilan_shop_review'
